@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedToolsRouteImport } from './routes/_authenticated/tools'
 import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
+import { Route as AuthenticatedHomeworkRouteImport } from './routes/_authenticated/homework'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const AuthRoute = AuthRouteImport.update({
@@ -40,6 +41,11 @@ const AuthenticatedRewardsRoute = AuthenticatedRewardsRouteImport.update({
   path: '/rewards',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHomeworkRoute = AuthenticatedHomeworkRouteImport.update({
+  id: '/homework',
+  path: '/homework',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -50,6 +56,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/homework': typeof AuthenticatedHomeworkRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/tools': typeof AuthenticatedToolsRoute
 }
@@ -57,6 +64,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/homework': typeof AuthenticatedHomeworkRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/tools': typeof AuthenticatedToolsRoute
 }
@@ -66,20 +74,22 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/homework': typeof AuthenticatedHomeworkRoute
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
   '/_authenticated/tools': typeof AuthenticatedToolsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/rewards' | '/tools'
+  fullPaths: '/' | '/auth' | '/dashboard' | '/homework' | '/rewards' | '/tools'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/rewards' | '/tools'
+  to: '/' | '/auth' | '/dashboard' | '/homework' | '/rewards' | '/tools'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/dashboard'
+    | '/_authenticated/homework'
     | '/_authenticated/rewards'
     | '/_authenticated/tools'
   fileRoutesById: FileRoutesById
@@ -127,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRewardsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/homework': {
+      id: '/_authenticated/homework'
+      path: '/homework'
+      fullPath: '/homework'
+      preLoaderRoute: typeof AuthenticatedHomeworkRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -139,12 +156,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedHomeworkRoute: typeof AuthenticatedHomeworkRoute
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
   AuthenticatedToolsRoute: typeof AuthenticatedToolsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedHomeworkRoute: AuthenticatedHomeworkRoute,
   AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
   AuthenticatedToolsRoute: AuthenticatedToolsRoute,
 }

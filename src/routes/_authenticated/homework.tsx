@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, Trash2, CheckCircle2, Circle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 import { useHomework, type Homework } from "@/hooks/useStudData";
 import { useI18n } from "@/lib/i18n";
 import { formatDate, localizeNumber } from "@/lib/calendar";
@@ -78,7 +79,7 @@ function HomeworkPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: Record<string, unknown> }) => {
+    mutationFn: async ({ id, patch }: { id: string; patch: TablesUpdate<"homework"> }) => {
       const { error } = await supabase.from("homework").update(patch).eq("id", id);
       if (error) throw error;
     },
@@ -309,7 +310,7 @@ function HomeworkPage() {
                         onClick={() => {
                           const next = checklist.map((c, j) =>
                             j === idx ? { ...c, done: !c.done } : c,
-                          );
+                          ) as unknown as TablesUpdate<"homework">["checklist"];
                           updateMutation.mutate({ id: hw.id, patch: { checklist: next } });
                         }}
                         className="flex w-full items-center gap-2 text-start text-sm transition-colors hover:text-primary"
