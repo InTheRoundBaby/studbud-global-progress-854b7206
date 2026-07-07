@@ -195,7 +195,6 @@
 @utility gradient-text {
   background: var(--gradient-primary);
   background-clip: text;
-  -webkit-background-clip: text;
   color: transparent;
 }
 
