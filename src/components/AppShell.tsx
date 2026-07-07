@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard,
@@ -24,9 +24,30 @@ const NAV: { to: string; key: TranslationKey; icon: typeof Timer }[] = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { t } = useI18n();
+  const { t, setLanguage, setCalendar } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const syncedRef = useRef(false);
+
+  // One-time sync of language/calendar preferences from the user's profile
+  useEffect(() => {
+    if (syncedRef.current) return;
+    syncedRef.current = true;
+    (async () => {
+      const hasLocal = localStorage.getItem("studbud:lang") || localStorage.getItem("studbud:cal");
+      if (hasLocal) return; // local choice wins on this device
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("language, calendar")
+        .eq("id", u.user.id)
+        .maybeSingle();
+      if (!profile) return;
+      if (profile.language === "fa" || profile.language === "en") setLanguage(profile.language);
+      if (profile.calendar === "jalali" || profile.calendar === "gregorian") setCalendar(profile.calendar);
+    })();
+  }, [setLanguage, setCalendar]);
 
   const handleSignOut = async () => {
     await queryClient.cancelQueries();
