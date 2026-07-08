@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { X, Plus, Trash2, ListChecks, FolderTree } from "lucide-react";
+import { parse as parseJalali, format as formatJalali } from "date-fns-jalali";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 
@@ -20,7 +21,7 @@ interface DraftChapter {
 }
 
 export function ExamCreateDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { t } = useI18n();
+  const { t, calendar, language } = useI18n();
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<"simple" | "chapters">("simple");
   const [form, setForm] = useState({
@@ -33,6 +34,25 @@ export function ExamCreateDialog({ open, onClose }: { open: boolean; onClose: ()
     lessonCount: 10,
   });
   const [chapters, setChapters] = useState<DraftChapter[]>([{ title: "", lessons: [""] }]);
+
+  // Jalali picker parts (only used when calendar === "jalali")
+  const [jalali, setJalali] = useState({ y: "", m: "", d: "", h: "09", min: "00" });
+
+  const updateJalali = (patch: Partial<typeof jalali>) => {
+    const next = { ...jalali, ...patch };
+    setJalali(next);
+    const { y, m, d, h, min } = next;
+    if (y && m && d && h && min) {
+      const str = `${y}/${m.padStart(2, "0")}/${d.padStart(2, "0")} ${h.padStart(2, "0")}:${min.padStart(2, "0")}`;
+      const parsed = parseJalali(str, "yyyy/MM/dd HH:mm", new Date());
+      if (!Number.isNaN(parsed.getTime())) {
+        // datetime-local shape so onSubmit's new Date() works
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const local = `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(parsed.getDate())}T${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`;
+        setForm((f) => ({ ...f, exam_date: local }));
+      }
+    }
+  };
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -165,13 +185,53 @@ export function ExamCreateDialog({ open, onClose }: { open: boolean; onClose: ()
                 />
                 <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
                   {t("examDate")}
-                  <input
-                    type="datetime-local"
-                    value={form.exam_date}
-                    onChange={(e) => setForm({ ...form, exam_date: e.target.value })}
-                    className={`${inputClass} text-foreground`}
-                    dir="ltr"
-                  />
+                  {calendar === "jalali" ? (
+                    <div className="flex gap-1.5" dir="ltr">
+                      <input
+                        inputMode="numeric"
+                        placeholder={language === "fa" ? "سال" : "yyyy"}
+                        value={jalali.y}
+                        onChange={(e) => updateJalali({ y: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                        className={`${inputClass} text-center text-foreground`}
+                      />
+                      <input
+                        inputMode="numeric"
+                        placeholder={language === "fa" ? "ماه" : "mm"}
+                        value={jalali.m}
+                        onChange={(e) => updateJalali({ m: e.target.value.replace(/\D/g, "").slice(0, 2) })}
+                        className={`${inputClass} text-center text-foreground`}
+                      />
+                      <input
+                        inputMode="numeric"
+                        placeholder={language === "fa" ? "روز" : "dd"}
+                        value={jalali.d}
+                        onChange={(e) => updateJalali({ d: e.target.value.replace(/\D/g, "").slice(0, 2) })}
+                        className={`${inputClass} text-center text-foreground`}
+                      />
+                      <input
+                        type="time"
+                        value={`${jalali.h}:${jalali.min}`}
+                        onChange={(e) => {
+                          const [h, min] = e.target.value.split(":");
+                          updateJalali({ h: h ?? "00", min: min ?? "00" });
+                        }}
+                        className={`${inputClass} text-foreground`}
+                      />
+                    </div>
+                  ) : (
+                    <input
+                      type="datetime-local"
+                      value={form.exam_date}
+                      onChange={(e) => setForm({ ...form, exam_date: e.target.value })}
+                      className={`${inputClass} text-foreground`}
+                      dir="ltr"
+                    />
+                  )}
+                  {calendar === "jalali" && form.exam_date && (
+                    <span className="text-[11px] text-muted-foreground" dir="ltr">
+                      {formatJalali(new Date(form.exam_date), "yyyy/MM/dd HH:mm")}
+                    </span>
+                  )}
                 </label>
                 <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
                   {t("priority")}
