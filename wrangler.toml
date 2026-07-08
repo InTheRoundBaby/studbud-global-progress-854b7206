@@ -1,0 +1,24 @@
+# Cloudflare Workers config for self-hosting StudBud on your own account.
+# Deploy with: bun run deploy
+#
+# Notes:
+# - This app is SSR (TanStack Start + server functions), so it deploys as a
+#   Cloudflare Worker with static assets, not classic Cloudflare Pages.
+# - `main` and `[assets] directory` point at nitro's Cloudflare build output.
+# - Values in [vars] are PUBLIC (baked into the client bundle anyway).
+#   For secrets, use `bunx wrangler secret put <NAME>` — never put them here.
+
+name = "studbud"
+main = ".output/server/index.mjs"
+compatibility_date = "2026-07-08"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".output/public"
+
+[vars]
+VITE_SUPABASE_URL = "https://qjanrpsoxehreijcgstv.supabase.co"
+VITE_SUPABASE_PROJECT_ID = "qjanrpsoxehreijcgstv"
+VITE_SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYW5ycHNveGVocmVpamNnc3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0Mjk4NjUsImV4cCI6MjA5OTAwNTg2NX0.c1V0eK03y2oIib_dXEqofDSYEwSrr86P7IQ2TtiLhMo"
+SUPABASE_URL = "https://qjanrpsoxehreijcgstv.supabase.co"
+SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYW5ycHNveGVocmVpamNnc3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0Mjk4NjUsImV4cCI6MjA5OTAwNTg2NX0.c1V0eK03y2oIib_dXEqofDSYEwSrr86P7IQ2TtiLhMo"
