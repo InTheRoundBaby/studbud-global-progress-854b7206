@@ -1,0 +1,7 @@
+# Copy to `.dev.vars` for local `wrangler dev` runs.
+# `.dev.vars` is git-ignored and NOT deployed — it's just for local Worker
+# emulation. Public values already live in wrangler.toml [vars]; add extra
+# runtime secrets here if you introduce any (StudBud doesn't need any today).
+#
+# Example:
+# SOME_FUTURE_SECRET=replace-me
