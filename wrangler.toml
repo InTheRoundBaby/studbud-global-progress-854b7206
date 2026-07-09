@@ -8,7 +8,7 @@
 # - Values in [vars] are PUBLIC (baked into the client bundle anyway).
 #   For secrets, use `bunx wrangler secret put <NAME>` — never put them here.
 
-name = "studbud"
+name = "studbud-global-progress-854b7206"
 main = ".output/server/index.mjs"
 compatibility_date = "2026-07-08"
 compatibility_flags = ["nodejs_compat"]
